@@ -72,10 +72,15 @@ jobs:
 
 
       - name: SonarCloud Code Quality Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=daffyCH_project-rpl
+            -Dsonar.organization=daffych
+            -Dsonar.sources=app
+            -Dsonar.python.coverage.reportPaths=coverage.xml
 
 
       - name: Quality Gate Check – Block if Failed
