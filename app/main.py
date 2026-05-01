@@ -40,3 +40,6 @@ def loans():
 def reminder(user, book_id):
     send_reminder(user, book_id)
     return {"status": "sent"}
+
+if __name__ == "__main__":
+    app.run(debug=True)
