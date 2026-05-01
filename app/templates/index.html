@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pustaka Digital</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <!-- removed external font to avoid sonar warning -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -92,7 +92,7 @@
       cursor: pointer;
       transition: all 0.18s;
     }
-    nav button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    nav button:hover { background: rgba(0,0,0,0.6); color: #fff; }
     nav button.active { background: var(--brand-light); color: var(--brand); }
 
     /* MAIN */
@@ -330,7 +330,7 @@
     }
     .badge-green  { background: var(--success-soft); color: var(--success); }
     .badge-red    { background: var(--danger-soft);  color: var(--danger); }
-    .badge-orange { background: #fef3e2; color: #c0700a; }
+    .badge-orange { background: #f59e0b; color: #111; }
 
     /* NOTIF ITEMS */
     .notif-item {
@@ -809,11 +809,15 @@ async function loadLoans() {
     const dueStr = due.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
     const late = !l.returned && due < now;
     const days = late ? Math.floor((now-due)/86400000) : 0;
-    const badge = l.returned
-      ? `<span class="badge badge-green">✅ Dikembalikan</span>`
-      : late
-        ? `<span class="badge badge-red">⚠️ Terlambat ${days}h</span>`
-        : `<span class="badge badge-orange">📤 Dipinjam</span>`;
+    let badge;
+
+    if (l.returned) {
+    badge = `<span class="badge badge-green">✅ Dikembalikan</span>`;
+    } else if (late) {
+    badge = `<span class="badge badge-red">⚠️ Terlambat ${days}h</span>`;
+    } else {
+    badge = `<span class="badge badge-orange">📤 Dipinjam</span>`;
+    }
     const action = l.returned ? '—'
       : `<button class="btn btn-outline btn-sm" onclick="doReturnRaw(${l.book_id},false).then(loadLoans)">Kembalikan</button>`;
     return `<tr>
@@ -857,7 +861,7 @@ function buildNotifList() {
         </div>
       </div>
       <button class="btn btn-sm ${late?'btn-danger':'btn-outline'}"
-        onclick="document.getElementById('n-user').value='${l.user.replace(/'/g,"\\'")}';document.getElementById('n-bookid').value=${l.book_id};sendReminder()">
+        onclick="document.getElementById('n-user').value='${l.user.replaceAll("'", "\\'")}';document.getElementById('n-bookid').value=${l.book_id};sendReminder()">
         🔔 Kirim Pengingat
       </button>
     </div>`;
@@ -865,7 +869,9 @@ function buildNotifList() {
 }
 
 /* INIT */
-loadStats();
+(async () => {
+  await loadStats();
+})();
 </script>
 </body>
 </html>
