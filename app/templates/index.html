@@ -1,0 +1,34 @@
+<h2>Peminjaman</h2>
+<input id="user" placeholder="Nama">
+<input id="bookId" placeholder="ID Buku">
+<button onclick="borrow()">Pinjam</button>
+
+<h2>Pengembalian</h2>
+<input id="returnId" placeholder="ID Buku">
+<button onclick="returnBook()">Kembalikan</button>
+
+<script>
+async function borrow() {
+  const user = document.getElementById('user').value;
+  const book_id = parseInt(document.getElementById('bookId').value);
+
+  await fetch('/borrow', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user, book_id})
+  });
+}
+
+async function returnBook() {
+  const book_id = parseInt(document.getElementById('returnId').value);
+
+  const res = await fetch('/return', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({book_id})
+  });
+
+  const data = await res.json();
+  alert("Denda: " + data.fine);
+}
+</script>

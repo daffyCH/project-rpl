@@ -1,8 +1,11 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app.main import app
 
-from app.main import add
+def test_borrow_and_return():
+    client = app.test_client()
 
-def test_add():
-    assert add(1, 2) == 3
+    client.post("/books", json={"title": "AI", "author": "X"})
+    res = client.post("/borrow", json={"book_id": 1, "user": "A"})
+    assert res.status_code == 200
+
+    res = client.post("/return", json={"book_id": 1})
+    assert "fine" in res.get_json()
