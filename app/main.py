@@ -5,7 +5,7 @@ from app.notification import send_reminder
 app = Flask(__name__)
 library = LibraryService()
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
 
@@ -15,7 +15,7 @@ def add_book():
     book = library.add_book(data["title"], data["author"])
     return jsonify(book.__dict__)
 
-@app.route("/books/search")
+@app.route("/books/search", methods=["GET"])
 def search():
     q = request.args.get("q", "")
     return jsonify(library.search_books(q))
@@ -32,11 +32,11 @@ def return_book():
     result = library.return_book(data["book_id"])
     return jsonify(result)
 
-@app.route("/loans")
+@app.route("/loans", methods=["GET"])
 def loans():
     return jsonify(library.get_loans())
 
-@app.route("/reminder/<user>/<int:book_id>")
+@app.route("/reminder/<user>/<int:book_id>", methods=["GET"])
 def reminder(user, book_id):
     send_reminder(user, book_id)
     return {"status": "sent"}

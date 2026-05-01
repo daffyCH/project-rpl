@@ -19,8 +19,8 @@
       --surface:     #ffffff;
       --surface-2:   #eeebe3;
       --text:        #1c1b18;
-      --muted:       #6b6860;
-      --faint:       #a5a39d;
+      --muted:       #4a4a4a;
+      --faint:       #6e6e6e;
       --border:      #ddd9d0;
       --danger:      #c0392b;
       --danger-soft: #fdecea;
@@ -449,12 +449,12 @@
       <div class="card-title"><div class="dot"></div>Tambah Buku Baru ke Koleksi</div>
       <div class="form-row cols-2">
         <div>
-          <label>Judul Buku</label>
-          <input type="text" id="b-title" placeholder="Masukkan judul buku..."/>
+          <label for="b-title">Judul Buku</label>
+          <input type="text" id="b-title" name="b-title" required placeholder="Masukkan judul buku..."/>
         </div>
         <div>
-          <label>Nama Penulis</label>
-          <input type="text" id="b-author" placeholder="Masukkan nama penulis..."/>
+          <label for="b-author">Nama Penulis</label>
+          <input type="text" id="b-author" name="b-author" required placeholder="Masukkan nama penulis..."/>
         </div>
       </div>
       <button class="btn btn-primary" onclick="addBook()">＋ Tambahkan ke Koleksi</button>
@@ -464,12 +464,12 @@
       <div class="card-title"><div class="dot"></div>Peminjaman Cepat</div>
       <div class="form-row cols-3">
         <div>
-          <label>Nama Peminjam</label>
-          <input type="text" id="q-user" placeholder="Nama anggota..."/>
+          <label for="q-user">Nama Peminjam</label>
+          <input type="text" id="q-user" name="q-user" required placeholder="Nama anggota..."/>
         </div>
         <div>
-          <label>ID Buku</label>
-          <input type="number" id="q-bookid" placeholder="Contoh: 1"/>
+          <label for="q-bookid">ID Buku</label>
+          <input type="number" id="q-bookid" name="q-bookid" required placeholder="Contoh: 1"/>
         </div>
         <div style="display:flex;align-items:flex-end;">
           <button class="btn btn-accent" style="width:100%" onclick="borrowQuick()">📤 Pinjam Sekarang</button>
@@ -516,14 +516,14 @@
         <div class="card-title"><div class="dot"></div>📤 Form Peminjaman</div>
         <div class="form-row">
           <div>
-            <label>Nama Peminjam</label>
-            <input type="text" id="p-user" placeholder="Nama lengkap anggota..."/>
+            <label for="p-user">Nama Peminjam</label>
+            <input type="text" id="p-user" name="p-user" required placeholder="Nama lengkap anggota..."/>
           </div>
         </div>
         <div class="form-row">
           <div>
-            <label>ID Buku</label>
-            <input type="number" id="p-bookid" placeholder="Masukkan ID buku..."/>
+            <label for="p-bookid">ID Buku</label>
+            <input type="number" id="p-bookid" name="p-bookid" required placeholder="Masukkan ID buku..."/>
           </div>
         </div>
         <div class="info-box green">📅 Masa pinjam <strong>7 hari</strong>. Denda keterlambatan <strong>Rp 1.000/hari</strong>.</div>
@@ -534,8 +534,8 @@
         <div class="card-title"><div class="dot" style="background:var(--accent)"></div>📥 Form Pengembalian</div>
         <div class="form-row">
           <div>
-            <label>ID Buku</label>
-            <input type="number" id="r-bookid" placeholder="Masukkan ID buku..."/>
+            <label for="r-bookid">ID Buku</label>
+            <input type="number" id="r-bookid" name="r-bookid" required placeholder="Masukkan ID buku..."/>
           </div>
         </div>
         <div class="info-box amber">⚠️ Pastikan ID buku benar. Denda dihitung otomatis jika terlambat.</div>
@@ -589,12 +589,12 @@
       <div class="card-title"><div class="dot"></div>Kirim Pengingat Manual</div>
       <div class="form-row cols-2">
         <div>
-          <label>Nama Peminjam</label>
-          <input type="text" id="n-user" placeholder="Nama anggota..."/>
+          <label for="n-user">Nama Peminjam</label>
+          <input type="text" id="n-user" name="n-user" required placeholder="Nama anggota..."/>
         </div>
         <div>
-          <label>ID Buku</label>
-          <input type="number" id="n-bookid" placeholder="ID buku..."/>
+          <label for="n-bookid">ID Buku</label>
+          <input type="number" id="n-bookid" name="n-bookid" required placeholder="ID buku..."/>
         </div>
       </div>
       <button class="btn btn-primary" onclick="sendReminder()">🔔 Kirim Pengingat</button>
@@ -642,7 +642,15 @@ function toast(msg, type) {
 /* ─── API ─── */
 async function api(url, opts) {
   try {
-    const r = await fetch(url, { headers: {'Content-Type':'application/json'}, ...(opts || {}) });
+    const r = await fetch(url, {
+      headers: {'Content-Type':'application/json'},
+      ...(opts || {})
+    });
+
+    if (!r.ok) {
+      throw new Error("API error");
+    }
+
     return await r.json();
   } catch(e) {
     toast('Gagal terhubung ke server.', 'err');
@@ -704,7 +712,11 @@ function renderBooks(books) {
 }
 
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;');
 }
 
 function quickBorrow(id) {
@@ -730,7 +742,7 @@ async function addBook() {
 /* ─── BORROW ─── */
 async function borrowQuick() {
   const user    = document.getElementById('q-user').value.trim();
-  const book_id = parseInt(document.getElementById('q-bookid').value);
+  const book_id = Number(document.getElementById('q-bookid').value);
   if (!user || !book_id) { toast('Nama dan ID buku wajib diisi.', 'err'); return; }
   const ok = await doBorrowRaw(book_id, user);
   if (ok) { document.getElementById('q-user').value = ''; document.getElementById('q-bookid').value = ''; }
@@ -738,7 +750,7 @@ async function borrowQuick() {
 
 async function doBorrow() {
   const user    = document.getElementById('p-user').value.trim();
-  const book_id = parseInt(document.getElementById('p-bookid').value);
+  const book_id = Number(document.getElementById('p-bookid').value);
   if (!user || !book_id) { toast('Nama dan ID buku wajib diisi.', 'err'); return; }
   await doBorrowRaw(book_id, user);
 }
@@ -755,7 +767,7 @@ async function doBorrowRaw(book_id, user) {
 
 /* ─── RETURN ─── */
 async function doReturn() {
-  const book_id = parseInt(document.getElementById('r-bookid').value);
+  const book_id = Number(document.getElementById('r-bookid').value);
   if (!book_id) { toast('ID buku wajib diisi.', 'err'); return; }
   await doReturnRaw(book_id, true);
 }
@@ -817,7 +829,7 @@ async function loadLoans() {
 /* ─── NOTIF ─── */
 async function sendReminder() {
   const user    = document.getElementById('n-user').value.trim();
-  const book_id = parseInt(document.getElementById('n-bookid').value);
+  const book_id = Number(document.getElementById('n-bookid').value);
   if (!user || !book_id) { toast('Nama dan ID buku wajib diisi.', 'err'); return; }
   const data = await api(`/reminder/${encodeURIComponent(user)}/${book_id}`);
   if (data && data.status === 'sent') toast(`🔔 Pengingat dikirim ke ${user}`, 'ok');
